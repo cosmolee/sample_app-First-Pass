@@ -13,4 +13,6 @@
 # Ignore all logfiles and tempfiles.
 /log/*.log
 /tmp
+
+# Ignore `vi` swap files.
 *.swp
