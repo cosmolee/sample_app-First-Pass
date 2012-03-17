@@ -2,6 +2,7 @@ class UsersController < ApplicationController
   before_filter :signed_in_user, only: [:index, :edit, :update]
   before_filter :correct_user,   only: [:edit, :update]
   before_filter :admin_user,     only: :destroy
+  before_filter :should_not_be_signed_in,  only: [:new, :create]  # Ex 9.6.5
 
 
   def index
@@ -43,10 +44,18 @@ class UsersController < ApplicationController
 
 
   def destroy
-    User.find(params[:id]).destroy
-    flash[:success] = "User destroyed."
-    redirect_to users_path
+    #User.find(params[:id]).destroy
+    user = User.find(params[:id])  
+    if current_user == user
+      flash[:error] = "You may not destroy yourself!"
+      redirect_to users_path
+    else
+      user.destroy
+      flash[:success] = "User destroyed."
+      redirect_to users_path
+    end
   end
+
 
 
   private

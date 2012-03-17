@@ -35,7 +35,7 @@ module SessionsHelper
   #  def redirect_back_or(default)
 
 
-  def redirect_back_or(default = "/help")
+  def redirect_back_or(default = root_path)
     redirect_to(session[:return_to] || default)
     clear_return_to
   end
@@ -57,6 +57,16 @@ module SessionsHelper
 
     def clear_return_to
       session.delete(:return_to)
+    end
+
+    # Signed-in users shouldn't be signing in duplicatively
+    # Perhaps I should change this to sign OUT the user, then go to the signin_path...
+    def should_not_be_signed_in
+      if signed_in?
+        sign_out
+        redirect_to signin_path
+      end
+      #redirect_to user_path(current_user) if signed_in?
     end
 
 

@@ -22,13 +22,11 @@ describe "Authentication" do
 
     describe "with valid information" do
       let(:user) { FactoryGirl.create(:user) }
-        before { sign_in user }	
-          # 9.6.3 exercize
-          #      before do
-          #        fill_in "Email",    with: user.email
-          #        fill_in "Password", with: user.password
-          #        click_button "Sign in"
-          #      end
+      before do
+        fill_in "Email",    with: user.email
+        fill_in "Password", with: user.password
+        click_button "Sign in"
+      end
 
       it { should have_selector('title', text: user.name) }
       it { should have_link('Users',    href: users_path) }
@@ -36,16 +34,6 @@ describe "Authentication" do
       it { should have_link('Settings', href: edit_user_path(user)) }
       it { should have_link('Sign out', href: signout_path) }
       it { should_not have_link('Sign in', href: signin_path) }
-
-      describe "followed by duplicate signin" do
-        before { visit signin_path }
-            #it "should render the default (profile) page" do
-            it "should sign out user and render signin page" do
-              page.should have_selector('title', text: "Sign in" ) 
-              page.should have_link('Sign in') 
-            end
-      end
-
 
       describe "followed by signout" do
         before { click_link "Sign out" }
@@ -59,13 +47,6 @@ describe "Authentication" do
 
     describe "for non-signed-in users" do
       let(:user) { Factory(:user) }
-
-      it { should_not have_link('Users',    href: users_path) }
-      it { should_not have_link('Profile', href: user_path(user)) }
-      it { should_not have_link('Settings', href: edit_user_path(user)) }
-      it { should_not have_link('Sign out', href: signout_path) }
-
-
 
       describe "in the Users controller" do
 
@@ -112,24 +93,6 @@ describe "Authentication" do
 
           it "should render the desired protected page" do
             page.should have_selector('title', text: 'Edit user')
-          end
-
-#Hartl's solution doesn't appear to log the user out first.  Aren't we duplicatively logging in the user?
-#That should also be another test: if a user tries to sign in while already signed-in (visiting signin_path), he should be redirected elsewhere.
-
-#3/16/2012: Fixed.  Now any visit to signin_path logs out current user.
-          describe "when visiting signin page again (duplicatively)" do
-            before do
-#              click_link "Sign out"   # my addition # no longer need this, now that I modified visits to signin_path to sign out current user.
-              visit signin_path
-#              fill_in "Email",    with: user.email
-#              fill_in "Password", with: user.password
-#              click_button "Sign in"
-            end
-
-            it "should sign out user and route to sign in page" do
-              page.should have_selector('title', text: 'Sign in') 
-            end
           end
         end
       end

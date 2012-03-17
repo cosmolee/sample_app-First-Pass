@@ -17,5 +17,11 @@
       <%= render 'layouts/footer' %>
       <%= debug(params) if Rails.env.development? %>
     </div>
+
+<div>
+  <p>Request (ex 9.6.7):</p>
+  <%= request.session_options %>
+</div>
+
   </body>
 </html>

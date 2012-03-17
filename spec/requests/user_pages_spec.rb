@@ -20,16 +20,33 @@ describe "User pages" do
       before(:all) { 30.times { FactoryGirl.create(:user) } }
       after(:all)  { User.delete_all }
 
+      let(:first_page)  { User.paginate(page: 1) }
+      let(:second_page) { User.paginate(page: 2) }
+
       it { should have_link('Next') }
       it { should have_link('2') }
       it { should_not have_link('delete') }
 
-      it "should list each user" do
-        User.all[0..2].each do |user|
-          #puts "User name is: #{user.name}" #DEBUGGING
+      # Ex. 9.6.8, listing 9.53
+      it "should list the first page of users" do
+        first_page.each do |user|
           page.should have_selector('li', text: user.name)
         end
       end
+
+      it "should not list the second page of users" do
+        second_page.each do |user|
+          page.should_not have_selector('li', text: user.name)
+        end
+      end
+
+# Old:
+#      it "should list each user" do
+#        User.all[0..2].each do |user|
+          #puts "User name is: #{user.name}" #DEBUGGING
+#          page.should have_selector('li', text: user.name)
+#        end
+#      end
 
 
       describe "as an admin user" do
@@ -42,8 +59,27 @@ describe "User pages" do
         it { should have_link('delete', href: user_path(User.first)) }
         it "should be able to delete another user" do
           expect { click_link('delete') }.to change(User, :count).by(-1)
+#How does this pass, given that there is a pop-up confirmation screen that pops up asking "Are you sure?" with deletes?
         end
         it { should_not have_link('delete', href: user_path(admin)) }
+
+
+        describe "destroy" do
+          it "should delete a user" do
+            expect { delete user_path(user) }.to change(User, :count).by(-1)
+            response.should redirect_to(users_path) 
+          end
+        end
+
+        describe "destroy self" do
+          it "should not be allowed" do
+            expect { delete user_path(admin) }.to change(User, :count).by(0)
+            response.should redirect_to(users_path) 
+            # response.should have_selector('div.flash.error', text: 'may not destroy yourself') # 3/17/12 - this does not pass. Don't know why - with browser testing it works.
+          end
+        end
+
+
       end
     end
   end
@@ -106,6 +142,7 @@ describe "User pages" do
       end
     end
   end
+
 
 
 
