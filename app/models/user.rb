@@ -15,6 +15,8 @@ class User < ActiveRecord::Base
   #Validations for presence of password, confirmation of password (using a "password_confirmation" attribute) are automatically added. 
   #You can add more validations by hand if need be.
 
+  has_many :microposts, dependent: :destroy
+
   before_save :create_remember_token
 
   validates :name,  presence: true, length: { maximum: 50 }
@@ -23,6 +25,18 @@ class User < ActiveRecord::Base
                     format: { with: valid_email_regex },
                     uniqueness: { case_sensitive: false }
   validates :password, length: { minimum: 6 }
+
+#10.37
+    # This is preliminary. See "Following users" for the full implementation.
+  def feed
+    Micropost.where("user_id = ?", id)
+  end
+
+  # ...equivalent to
+  #def feed
+  #  microposts
+  #end
+
 
 
   private
